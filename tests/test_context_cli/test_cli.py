@@ -311,7 +311,25 @@ def test_index_file_not_found(tmp_path, monkeypatch):
 def test_help_shows_subcommands(monkeypatch, capsys):
     _run_cli([], monkeypatch)
     out = capsys.readouterr().out
+    assert "dashboard" in out
     assert "list" in out
     assert "search" in out
     assert "read" in out
     assert "index" in out
+
+
+def test_dashboard_json(store_with_doc, monkeypatch, capsys):
+    _run_cli(["dashboard", "--json"], monkeypatch)
+    out = capsys.readouterr().out
+    data = json.loads(out)
+    assert data["overview"]["doc_corpora"] == 1
+    assert data["stores"]["docs"]["corpora"][0]["name"] == "test-api"
+
+
+def test_dashboard_writes_html(store_with_doc, monkeypatch, tmp_path, capsys):
+    output = tmp_path / "supervision" / "index.html"
+    _run_cli(["dashboard", "--output", str(output)], monkeypatch)
+    out = capsys.readouterr().out
+    assert "Dashboard written to" in out
+    assert output.exists()
+    assert "King Context Supervision" in output.read_text(encoding="utf-8")

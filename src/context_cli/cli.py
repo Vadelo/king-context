@@ -20,6 +20,7 @@ from context_cli.indexer import index_doc
 from context_cli.reader import read_section
 from context_cli.searcher import search
 from context_cli.store import list_docs
+from context_cli.supervision import build_snapshot, write_dashboard
 
 
 SOURCE_CHOICES = ("all", "docs", "research")
@@ -251,6 +252,16 @@ def _cmd_index(args: argparse.Namespace) -> None:
         print(f"Indexed {result.doc_name} ({label}): {result.section_count} sections")
 
 
+def _cmd_dashboard(args: argparse.Namespace) -> None:
+    if args.json:
+        print(json.dumps(build_snapshot(), indent=2))
+        return
+
+    output_path = Path(args.output) if args.output else None
+    written = write_dashboard(output_path)
+    print(f"Dashboard written to {written}")
+
+
 def _add_source_arg(parser: argparse.ArgumentParser) -> None:
     parser.add_argument(
         "--source",
@@ -329,6 +340,23 @@ def _build_parser() -> argparse.ArgumentParser:
         help="Force routing to a specific store (default: auto-detect from source_type)",
     )
     p_index.set_defaults(func=_cmd_index)
+
+    # dashboard
+    p_dashboard = subparsers.add_parser(
+        "dashboard",
+        help="Build a static supervision dashboard from local stores",
+    )
+    p_dashboard.add_argument(
+        "--output",
+        default=None,
+        help="Write dashboard HTML to this path (default: .king-context/supervision/index.html)",
+    )
+    p_dashboard.add_argument(
+        "--json",
+        action="store_true",
+        help="Print the consolidated dashboard snapshot as JSON",
+    )
+    p_dashboard.set_defaults(func=_cmd_dashboard)
 
     adr.add_subparser(subparsers)
 

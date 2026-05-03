@@ -184,6 +184,32 @@ Flags:
 The indexer writes one directory per corpus and builds reverse indexes for
 keywords, use cases, and tags.
 
+## Build a supervision dashboard
+
+Use `kctx dashboard` to generate a local, read-only HTML view of the indexed
+stores. This helps with onboarding, architecture review, and inspection of the
+retrieval layer before an agent consumes it.
+
+```bash
+kctx dashboard
+kctx dashboard --output .king-context/supervision/project.html
+kctx dashboard --json
+```
+
+Flags:
+
+- `--output <path>`: write the generated HTML to a custom path. The default is
+  `.king-context/supervision/index.html`.
+- `--json`: print the consolidated dashboard snapshot instead of writing HTML.
+
+The dashboard currently includes:
+
+- overview counts for docs, research, sections, and ADRs;
+- corpus explorer cards with dominant tags and top sections;
+- a lightweight architecture map based on corpus tags and decision metadata;
+- decision memory cards for active and historical ADRs;
+- a local search inspector for previewing indexed context.
+
 ## Manage architectural decisions
 
 Use `kctx adr` to record and retrieve architectural decision records. ADRs are
